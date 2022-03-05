@@ -13,28 +13,39 @@ export default class CountryInfo extends Component {
     let res = await axios.get(`name/${this.props.currentCountry}`);
     const country = res.data[0];
 
+
     let borders = [];
 
-    console.log('componentDidUpdate')
-    country.borders.length !== 0 ? (
-      country.borders.forEach(async country => {
-        console.log(country);
-        let borderedCoun =  await axios.get(`alpha/${country}`);
-        borders.push(borderedCoun.data.name);
-      })
-    ) : (
-      borders.push('not borders')
-    )
+    // console.log('componentDidUpdate')
+
+    if (country.borders.length !== 0) {
+      borders = country.borders.map(async (country) => {
+        let borderedCoun = await axios.get(`alpha/${country}`);
+        return borderedCoun.data.name;
+      });
+    } else {
+      borders.push("not borders");
+    }
+    console.log(borders);
+
+    // country.borders.length !== 0 ? (
+    //   country.borders.forEach(async country => {
+    //     console.log(country);
+    //     let borderedCoun =  await axios.get(`alpha/${country}`);
+    //     borders.push(borderedCoun.data.name);
+    //   })
+    // ) : (
+    //   borders.push('not borders')
+    // )
 
     borders = await Promise.all(borders);
-    console.log(borders);
 
     this.setState({
       countryInfo: {
         name: country.name,
         population: country.population,
         flag: country.flags.png,
-        borders: borders,
+        borders,
       }
     })
   }
@@ -76,7 +87,6 @@ export default class CountryInfo extends Component {
           {
             borders.length !== 0 ? (
               borders.map(country => {
-                console.log(country);
                 return (
                   <BorderItem key={country} country={country}/>
                 )
@@ -91,6 +101,6 @@ export default class CountryInfo extends Component {
     } else {
       return "Loading..."
     }
-    
+
   }
 }
